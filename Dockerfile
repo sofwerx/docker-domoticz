@@ -1,28 +1,22 @@
-FROM debian:jessie
+FROM alpine:latest 
 
-RUN apt-get update
-RUN apt-get install -y curl git libssl-dev build-essential libboost-dev libboost-thread-dev libboost-system-dev libsqlite3-dev curl libcurl4-openssl-dev libusb-dev zlib1g-dev 
+ENV TZ UTC
 
-# Install cmake 3.6.2 from source for reasons
-RUN curl -sL https://cmake.org/files/v3.6/cmake-3.6.2-Linux-x86_64.tar.gz | tar xf - -C /opt
- && ln -s  /opt/cmake-3.6.2-Linux-x86_64/bin/cmake /usr/local/bin/cmake
-
-# Compile OpenZWave
-RUN git clone https://github.com/OpenZWave/open-zwave.git \
- && ln -s open-zwave open-zwave-read-only \
- && make -C open-zwave
-
-# Download & deploy domoticz
-RUN git clone https://github.com/domoticz/domoticz.git /domoticz
+RUN apk add --no-cache git cmake linux-headers libusb-dev zlib-dev openssl-dev boost-dev sqlite-dev build-base eudev-dev coreutils curl-dev python3-dev \
+ && git clone --depth 2 https://github.com/OpenZWave/open-zwave.git /open-zwave \
+ && make -C /open-zwave install \
+ && ln -s /open-zwave /open-zwave-read-only \
+ && git clone --depth 2 https://github.com/domoticz/domoticz.git /domoticz \
+ && cd /domoticz \
+ && git fetch --unshallow \
+ && git reset --hard f4e68d7f032e4efe7185676c5ed0814a650348d5 \
+ && cmake -DCMAKE_BUILD_TYPE=Release . \
+ && make install \
+ && apk del git cmake linux-headers libusb-dev zlib-dev openssl-dev boost-dev sqlite-dev build-base eudev-dev coreutils curl-dev python3-dev
 
 WORKDIR /domoticz
 
-RUN cmake -DCMAKE_BUILD_TYPE=Release .
-RUN make -j 3
-
-ADD run.sh/ run.sh
-
-CMD /run.sh
+ADD run.sh /run.sh
 
 VOLUME /domoticz/scripts
 VOLUME /domoticz/backups
@@ -31,7 +25,5 @@ VOLUME /domoticz/db
 # to allow access from outside of the container  to the container service
 # at that ports need to allow access from firewall if need to access it outside of the server.
 EXPOSE 1443 6144 8080
-ENV PGID=0 PUID=0 TZ=UTC
 
-CMD /domoticz/domoticz
-
+CMD /run.sh

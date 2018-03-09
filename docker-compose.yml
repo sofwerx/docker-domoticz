@@ -14,6 +14,8 @@ services:
   domoticz:
     build: .
     image: sofwerx/domoticz
+    container_name: domoticz
+    hostname: domoticz
     volumes:
       - domoticz-scripts:/domoticz/scripts
       - domoticz-backups:/domoticz/backups
@@ -26,5 +28,4 @@ services:
       PGID: 0
       PUID: 0
       TZ: UTC
-
 
