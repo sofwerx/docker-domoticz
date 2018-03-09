@@ -1,2 +1,3 @@
-#!/bin/bash -exo pipefail
+#!/bin/bash
+set -exo pipefail
 exec /domoticz/domoticz $@
