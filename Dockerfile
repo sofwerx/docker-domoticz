@@ -30,7 +30,8 @@ VOLUME /domoticz/db
 
 # to allow access from outside of the container  to the container service
 # at that ports need to allow access from firewall if need to access it outside of the server.
-EXPOSE 8080
+EXPOSE 1443 6144 8080
+ENV PGID=0 PUID=0 TZ=UTC
 
 CMD /domoticz/domoticz
 
