@@ -1,0 +1,30 @@
+version: '2.1'
+
+volumes:
+
+  domoticz-backups:
+    driver: local
+  domoticz-db:
+    driver: local
+  domoticz-scripts:
+    driver: local
+
+services:
+
+  domoticz:
+    build: .
+    image: sofwerx/domoticz
+    volumes:
+      - domoticz-scripts:/domoticz/scripts
+      - domoticz-backups:/domoticz/backups
+      - domoticz-db:/domoticz/db
+    ports:
+      - 1443:1443
+      - 6144:6144
+      - 8080:8080
+    environment:
+      PGID: 0
+      PUID: 0
+      TZ: UTC
+
+
